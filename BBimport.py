@@ -15,7 +15,7 @@ The output appears in the "output" subdirectory, in a separate file for each cat
 (incorporated in the name of the file).
 
 There are a few special cases:
-- Descriptions are processed but cannot be imported into Blackbaord Ultra. They appear in files with names
+- Descriptions are processed but cannot be imported into Blackboard Ultra. They appear in files with names
 containing the text "description".
 - The xml (converted to dictionary text) for unsupported question types are collected in files with names
 containing the text *unsupported*.
@@ -315,17 +315,22 @@ def parseArguments():
     # Positional mandatory arguments
     parser.add_argument("filename", help="name of xml file with Moodle quiz questions", type=str)
      
+    # Optional arguments
+    parser.add_argument("-v", "--verbose", help="provides verbose information", action="store_true")
+
     # Parse arguments
     args = parser.parse_args()
     
     return args
 
-def write_questions_to_file (questions, category, dirname):
+def write_questions_to_file (questions, category, dirname, verbose):
     """saves all questions in this category to file in the directory dirname
     questions are grouped by type of question"""
-    print(f"\nCategory {category}:")
+    if verbose:
+        print(f"\nCategory {category}:")
     for qtype in questions:
-        print(f"\t{len(questions[qtype])} questions of type {qtype}")
+        if verbose:
+            print(f"\t{len(questions[qtype])} questions of type {qtype}")
         rootname = dirname + category.replace("/","_") + "_" + qtype
         
         output = ""
@@ -338,6 +343,23 @@ def write_questions_to_file (questions, category, dirname):
 
 def main(arguments):
 
+    verbose = arguments.verbose 
+    if verbose:
+        # Message
+        print("\nMoodle to Blackboard Ultra quiz converter")
+        print("=========================================")
+
+        print("""The output appears in the "output" subdirectory, in a separate file for each category and question type
+(incorporated in the name of the file).
+
+There are a few special cases:
+- Descriptions are processed but cannot be imported into Blackboard Ultra. They appear in files with names
+containing the text "description".
+- The xml (converted to dictionary text) for unsupported question types are collected in files with names
+containing the text *unsupported*.
+- Questions where there were errors are collected in files with names containing the text *malformed*.
+""")
+              
     # open xml file
     filename = arguments.filename
     text = pathlib.Path(filename).read_text()
@@ -365,7 +387,7 @@ def main(arguments):
                 
                 # write lists of questions and descriptions of previous category to file
                 if not category is None:
-                    write_questions_to_file (questions, category, dirname)
+                    write_questions_to_file (questions, category, dirname, verbose)
                     questions = {}
         
                 category = question["category"]["text"]
@@ -434,16 +456,12 @@ def main(arguments):
             
     
     # write questions of final category
-    write_questions_to_file (questions, category, dirname)
+    write_questions_to_file (questions, category, dirname, verbose)
 
 # main script
 if __name__ == '__main__':
     # Parse the arguments
     args = parseArguments()
-
-    # Message
-    print("\nMoodle to Blackboard Ultra quiz converter")
-    print("=========================================")
 
     # Run function
     main(args)
