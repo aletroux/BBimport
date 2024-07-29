@@ -349,7 +349,8 @@ def main(arguments):
         print("\nMoodle to Blackboard Ultra quiz converter")
         print("=========================================")
 
-        print("""The output appears in the "output" subdirectory, in a separate file for each category and question type
+        print(
+"""The output appears in the "output" subdirectory, in a separate file for each category and question type
 (incorporated in the name of the file).
 
 There are a few special cases:
@@ -362,7 +363,7 @@ containing the text *unsupported*.
               
     # open xml file
     filename = arguments.filename
-    text = pathlib.Path(filename).read_text()
+    text = pathlib.Path(filename).read_text().strip()
 
     # put all files in "output/" subdirectory
     dirname = "output/"
